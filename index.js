@@ -32,7 +32,7 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 // ejs routes
-app.get("/index", (req, res) => {
+app.get("/", (req, res) => {
   res.render("index");
 });
 
