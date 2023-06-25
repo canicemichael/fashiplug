@@ -26,10 +26,10 @@ app.use(morgan("tiny")); //this logs the endpoints when they're called from fron
 // app.use(authJwt());
 app.use(errorHandler);
 
-app.use(express.static("views"));
-
-app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "src/views"));
+
+app.use(express.static("src/public"));
 
 // ejs routes
 app.get("/", (req, res) => {
