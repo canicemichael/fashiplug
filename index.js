@@ -27,9 +27,9 @@ app.use(morgan("tiny")); //this logs the endpoints when they're called from fron
 app.use(errorHandler);
 
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "src/views"));
+app.set("views", path.join(__dirname, "views"));
 
-app.use(express.static("src/public"));
+app.use(express.static("public"));
 
 // ejs routes
 app.get("/", (req, res) => {

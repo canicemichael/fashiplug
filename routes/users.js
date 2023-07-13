@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const oldUser = await User.findOne({ email: req.body.email });
-  if(oldUser) {
+  if (oldUser) {
     return res.status(400).json({ message: "User is already registered" });
   }
 
@@ -52,7 +52,7 @@ router.get("/:id", async (req, res) => {
 
 router.post("/register", async (req, res) => {
   const oldUser = await User.findOne({ email: req.body.email });
-  if(oldUser) {
+  if (oldUser) {
     return res.status(400).json({ message: "User is already registered" });
   }
 
@@ -114,13 +114,9 @@ router.get(`/get/count`, async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const user = await User.findByIdAndRemove(req.params.id);
   if (!user)
-    return res
-      .status(404)
-      .json({ success: false, message: "user not found" });
+    return res.status(404).json({ success: false, message: "user not found" });
 
-  res
-    .status(200)
-    .json({ success: true, message: "the user has been removed" });
+  res.status(200).json({ success: true, message: "the user has been removed" });
 });
 
 module.exports = router;
