@@ -2,103 +2,167 @@ const { User } = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const router = require("express").Router();
-const flash = require('connect-flash');
-const passport = require('passport');
+const passport = require("passport");
+// Auth Setup
+const localStrategy = require("passport-local").Strategy;
 
+// passport config
+passport.use(
+  new localStrategy(
+    { usernameField: "email", passReqToCallback: true },
+    (req, email, password, done) => {
+      // Match user
+      User.findOne({
+        email: email,
+      })
+        .then((user) => {
+          if (!user) {
+            return done(null, false, {
+              message: "Invalid Credentials, Try Again",
+            });
+          }
+          if (user.password != password) {
+            return done(null, false, { message: "Incorrect Password" });
+          }
+          return done(null, user);
+        })
+        .catch((err) => {
+          return res.redirect("/");
+        });
+    }
+  )
+);
 
-router.use(passport.initialize());
-router.use(passport.session());
-
-// flash
-router.use(flash());
-
-router.use(function (req, res, next) {
-    res.locals.success_msg = req.flash("success_msg");
-    res.locals.error_msg = req.flash("error_msg");
-    res.locals.error = req.flash("error");
-    next();
-})
-
-
-router.post("/", async (req, res) => {
-  const oldUser = await User.findOne({ email: req.body.email });
-  if (oldUser) {
-    return res.status(400).json({ message: "User is already registered" });
-  }
-
-  let user = new User({
-    name: req.body.name,
-    email: req.body.email,
-    passwordHash: await bcrypt.hash(req.body.password, 10),
-    phone: req.body.phone,
-    isAdmin: req.body.isAdmin,
-    street: req.body.street,
-    apartment: req.body.apartment,
-    zip: req.body.zip,
-    city: req.body.city,
-    country: req.body.country,
-  });
-
-  user = await user.save();
-
-  if (!user) return res.status(400).send("the user cannot be created");
-
-  res.send(user);
+passport.serializeUser(function (user, done) {
+  done(null, user.id);
 });
 
-
-router.post("/register", async (req, res) => {
-  const oldUser = await User.findOne({ email: req.body.email });
-  if (oldUser) {
-    return res.status(400).json({ message: "User is already registered" });
-  }
-
-  let user = new User({
-    name: req.body.name,
-    email: req.body.email,
-    passwordHash: await bcrypt.hash(req.body.password, 10),
-    phone: req.body.phone,
-    isAdmin: req.body.isAdmin,
-    street: req.body.street,
-    apartment: req.body.apartment,
-    zip: req.body.zip,
-    city: req.body.city,
-    country: req.body.country,
+passport.deserializeUser(function (id, done) {
+  User.findById(id, function (err, user) {
+    done(err, user);
   });
-
-  user = await user.save();
-
-  if (!user) return res.status(400).send("the user cannot be created");
-
-  res.send(user);
 });
 
-router.post("/login", async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
-
-  if (!user) {
-    return res.status(400).send("The user not found");
+router.post(
+  "/login",
+  passport.authenticate("local", {
+    failureRedirect: "/login",
+    failureFlash: true,
+  }),
+  (req, res) => {
+    User.findOne({ email: req.body.email })
+      .then((user) => {
+        res.redirect("/" + user._id);
+      })
+      .catch((err) => {
+        req.flash(
+          "error_msg",
+          "Invalid Credentials! If error persists, contact support."
+        );
+        return res.redirect("back");
+      });
   }
+);
 
-  if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        isAdmin: user.isAdmin,
-      },
-      "secret",
-      {
-        expiresIn: "1d",
-      }
-    );
-    res.status(200).send({ user: user.email, token: token });
+
+
+router.post("/register/:id", (req, res) => {
+  const { first_name, last_name, country, email, password, password2 } =
+    req.body;
+  let errors = [];
+  if (!first_name || !last_name || !email || !password || !password2) {
+    errors.push({ msg: "Please enter all fields" });
+  }
+  if (password != password2) {
+    errors.push({ msg: "Passwords do not match" });
+  }
+  if (password.length < 8) {
+    errors.push({ msg: "Password must be at least 8 characters" });
+  }
+  if (errors.length > 0) {
+    res.render("auth/ref_register", {
+      errors,
+      first_name,
+      last_name,
+      email,
+      password,
+      password2,
+    });
   } else {
-    res.status(400).send("Invalid email or password");
+    req.body.username = email;
+    User.findOne({ email })
+      .then((user) => {
+        if (user) {
+          errors.push({
+            msg: "An account with this email already exists. Please login",
+          });
+          return res.render("auth/login", { errors });
+        } else {
+          req.body.verification_code = verification_code();
+          User.findById(req.params.id)
+            .populate("downline")
+            .then((upline) => {
+              req.body.sponsor = upline._id;
+              req.body.sponsor_name =
+                upline.first_name + " " + upline.last_name;
+              User.register(new User(req.body), password)
+                .then((new_user) => {
+                  var dl = {
+                    name: new_user.first_name + " " + new_user.last_name,
+                    user_id: new_user._id,
+                    email: new_user.email,
+                  };
+                  Downline.create(dl).then((downline) => {
+                    upline.downline.push(downline);
+                    upline.save();
+                    // welcome_mail(new_user);
+                    req.flash("success_msg", "Account created, Please login");
+                    return res.redirect("/login");
+                  });
+                })
+                .catch((err) => {
+                  errors.push({ msg: "Something went wrong" });
+                  console.log("Can't create user");
+                  return res.render("auth/register", {
+                    errors,
+                    first_name,
+                    last_name,
+                    email,
+                    password,
+                    password2,
+                  });
+                });
+            })
+            .catch((err) => {
+              errors.push({ msg: "Invalid Referrer" });
+              console.log("Invalid Referrer");
+              return res.render("auth/register", {
+                errors,
+                first_name,
+                last_name,
+                email,
+                password,
+                password2,
+              });
+            });
+        }
+      })
+      .catch((err) => {
+        errors.push({ msg: "Something went wrong, please try again" });
+        return res.render("auth/register", {
+          errors,
+          first_name,
+          last_name,
+          email,
+          password,
+          password2,
+        });
+      });
   }
 });
 
-
-
-
+router.get("/reset", (req, res) => {
+  res.render("auth/reset", { page: "Reset" });
+});
 
 module.exports = router;
