@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const userSchema = mongoose.Schema({
   name: {
     type: String,
-    required: true,
   },
   email: {
     type: String,
@@ -15,7 +14,6 @@ const userSchema = mongoose.Schema({
   },
   phone: {
     type: String,
-    required: true,
   },
   isAdmin: {
     type: Boolean,
@@ -23,26 +21,26 @@ const userSchema = mongoose.Schema({
   },
   street: {
     type: String,
-    default: '',
+    default: "",
   },
   apartment: {
-    type: String, 
-    default: '',
+    type: String,
+    default: "",
   },
   zip: {
     type: String,
-    default: ''
+    default: "",
   },
   city: {
     type: String,
-    default: ''
+    default: "",
   },
   country: {
     type: String,
-    default: '',
+    default: "",
   },
 });
- 
+
 // inorder to change the _id to id
 userSchema.virtual("id").get(function () {
   return this._id.toHexString();
