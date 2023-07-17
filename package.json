@@ -38,7 +38,7 @@
     "webpack-cli": "^5.1.4",
     "webpack-node-externals": "^3.0.0"
   },
-  "engine": {
+  "engines": {
     "node": "16.x"
   }
 }

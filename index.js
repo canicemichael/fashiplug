@@ -248,6 +248,100 @@ app.post("/register", (req, res) => {
   }
 });
 
+app.post("/register/:id", (req, res) => {
+  const { first_name, last_name, country, email, password, password2 } =
+    req.body;
+  let errors = [];
+  if (!first_name || !last_name || !email || !password || !password2) {
+    errors.push({ msg: "Please enter all fields" });
+  }
+  if (password != password2) {
+    errors.push({ msg: "Passwords do not match" });
+  }
+  if (password.length < 8) {
+    errors.push({ msg: "Password must be at least 8 characters" });
+  }
+  if (errors.length > 0) {
+    res.render("auth/ref_register", {
+      errors,
+      first_name,
+      last_name,
+      email,
+      password,
+      password2,
+    });
+  } else {
+    req.body.username = email;
+    User.findOne({ email })
+      .then((user) => {
+        if (user) {
+          errors.push({
+            msg: "An account with this email already exists. Please login",
+          });
+          return res.render("auth/login", { errors });
+        } else {
+          req.body.verification_code = verification_code();
+          User.findById(req.params.id)
+            .populate("downline")
+            .then((upline) => {
+              req.body.sponsor = upline._id;
+              req.body.sponsor_name =
+                upline.first_name + " " + upline.last_name;
+              User.register(new User(req.body), password)
+                .then((new_user) => {
+                  var dl = {
+                    name: new_user.first_name + " " + new_user.last_name,
+                    user_id: new_user._id,
+                    email: new_user.email,
+                  };
+                  Downline.create(dl).then((downline) => {
+                    upline.downline.push(downline);
+                    upline.save();
+                    // welcome_mail(new_user);
+                    req.flash("success_msg", "Account created, Please login");
+                    return res.redirect("/login");
+                  });
+                })
+                .catch((err) => {
+                  errors.push({ msg: "Something went wrong" });
+                  console.log("Can't create user");
+                  return res.render("auth/register", {
+                    errors,
+                    first_name,
+                    last_name,
+                    email,
+                    password,
+                    password2,
+                  });
+                });
+            })
+            .catch((err) => {
+              errors.push({ msg: "Invalid Referrer" });
+              console.log("Invalid Referrer");
+              return res.render("auth/register", {
+                errors,
+                first_name,
+                last_name,
+                email,
+                password,
+                password2,
+              });
+            });
+        }
+      })
+      .catch((err) => {
+        errors.push({ msg: "Something went wrong, please try again" });
+        return res.render("auth/register", {
+          errors,
+          first_name,
+          last_name,
+          email,
+          password,
+          password2,
+        });
+      });
+  }
+});
 
 
 // ===============shop ROUTES===================
