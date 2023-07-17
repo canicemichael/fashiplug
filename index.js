@@ -15,7 +15,12 @@ const usersRoute = require("./routes/users");
 const ordersRoute = require("./routes/orders");
 const authRoute = require("./routes/auth");
 
+// importing models
 const { User } = require("./models/user");
+const funct = require("./config/funct");
+
+// importing functions
+let verification_code = funct.verification_code;
 
 const { authJwt } = require("./helpers/jwt");
 const errorHandler = require("./helpers/error-handler");
@@ -58,6 +63,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+
 // flash
 app.use(flash());
 
@@ -68,7 +74,55 @@ app.use(function (req, res, next) {
   next();
 });
 
-// ejs routes
+// Auth Setup
+const localStrategy = require("passport-local").Strategy;
+
+// passport config
+passport.use(
+  new localStrategy(
+    { usernameField: "email", passReqToCallback: true },
+    (req, email, password, done) => {
+      // Match user
+      User.findOne({
+        email: email,
+      })
+        .then((user) => {
+          if (!user) {
+            return done(null, false, {
+              message: "Invalid Credentials, Try Again",
+            });
+          }
+          if (user.password != password) {
+            return done(null, false, { message: "Incorrect Password" });
+          }
+          return done(null, user);
+        })
+        .catch((err) => {
+          return res.redirect("/");
+        });
+    }
+  )
+);
+
+passport.serializeUser(function (user, done) {
+  done(null, user.id);
+});
+
+// passport.deserializeUser(function (id, done) {
+//   User.findById(id, function (err, user) {
+//     done(err, user);
+//   });
+// });
+
+passport.deserializeUser(function(user, cb) {
+  process.nextTick(function() {
+    return cb(null, user);
+  });
+});
+
+
+// =================dash ROUTES===============
+
 app.get("/", (req, res) => {
   res.render("index");
 });
@@ -97,16 +151,40 @@ app.get("/faq", (req, res) => {
   res.render("faq");
 });
 
-app.get("/login", (req, res) => {
-  res.render("login");
-});
-
 app.get("/product", (req, res) => {
   res.render("product");
 });
 
+// ------------- auth Route -----------------
+
+app.get("/login", (req, res) => {
+  res.render("auth/login");
+});
+
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    failureRedirect: "/login",
+    failureFlash: true,
+  }),
+  (req, res) => {    
+    User.findOne({ email: req.body.email })
+      .then((user) => {
+        // res.redirect("/" + user._id);
+        res.redirect("/");
+      })
+      .catch((err) => {
+        req.flash(
+          "error_msg",
+          "Invalid Credentials! If error persists, contact support."
+        );
+        return res.redirect("back");
+      });
+  }
+);
+
 app.get("/register", (req, res) => {
-  res.render("register");
+  res.render("auth/register");
 });
 
 app.post("/register", (req, res) => {
@@ -119,7 +197,7 @@ app.post("/register", (req, res) => {
   if (password != password2) {
     errors.push({ msg: "Passwords do not match" });
   }
-  console.log(password);
+
   if (password.length < 8) {
     errors.push({ msg: "Password must be at least 8 characters" });
   }
@@ -132,14 +210,15 @@ app.post("/register", (req, res) => {
     });
   } else {
     req.body.username = email;
-    User.findOne({ email }).then((user) => {
+    User.findOne({ email }).then(async (user) => {
       if (user) {
         errors.push({
           msg: "An account with this email already exists. Please login",
         });
-        return res.render("login", { errors });
+        return res.render("auth/login", { errors });
       } else {
         req.body.verification_code = verification_code();
+
         User.register(new User(req.body), password)
           .then((new_user) => {
             // welcome_mail(new_user);
@@ -149,10 +228,29 @@ app.post("/register", (req, res) => {
           .catch((err) => {
             errors.push({ msg: "Something went wrong" });
           });
+
+        // try { -----
+        //   req.body.verification_code = verification_code();
+        //   console.log(req.body);
+        //   const newUser = new User({
+        //     email: req.body.email,
+        //     username: req.body.username,
+        //     passwordHash: req.body.password,
+        //   });
+        //   await newUser.save();
+        //   req.flash("success_msg", "Account created, Please login");
+        //   return res.redirect("/login");
+        // } catch (error) {
+        //   errors.push({ msg: "Something went wrong" });
+        // }
       }
     });
   }
 });
+
+
+
+// ===============shop ROUTES===================
 
 app.get("/shop", (req, res) => {
   res.render("shop");

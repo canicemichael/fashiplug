@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose"),
+  passportLocalMongoose = require("passport-local-mongoose");
 
 const userSchema = mongoose.Schema({
   name: {
@@ -8,7 +9,7 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  passwordHash: {
+  password: {
     type: String,
     required: true,
   },
@@ -39,6 +40,7 @@ const userSchema = mongoose.Schema({
     type: String,
     default: "",
   },
+  verification_code: String,
 });
 
 // inorder to change the _id to id
@@ -49,6 +51,8 @@ userSchema.virtual("id").get(function () {
 userSchema.set("toJSON", {
   virtuals: true,
 });
+
+userSchema.plugin(passportLocalMongoose);
 
 module.exports.User = mongoose.model("User", userSchema);
 module.exports.userSchema = userSchema;

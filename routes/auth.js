@@ -7,62 +7,43 @@ const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
 
 // passport config
-passport.use(
-  new localStrategy(
-    { usernameField: "email", passReqToCallback: true },
-    (req, email, password, done) => {
-      // Match user
-      User.findOne({
-        email: email,
-      })
-        .then((user) => {
-          if (!user) {
-            return done(null, false, {
-              message: "Invalid Credentials, Try Again",
-            });
-          }
-          if (user.password != password) {
-            return done(null, false, { message: "Incorrect Password" });
-          }
-          return done(null, user);
-        })
-        .catch((err) => {
-          return res.redirect("/");
-        });
-    }
-  )
-);
+// passport.use(
+//   new localStrategy(
+//     { usernameField: "email", passReqToCallback: true },
+//     (req, email, password, done) => {
+//       // Match user
+//       User.findOne({
+//         email: email,
+//       })
+//         .then((user) => {
+//           if (!user) {
+//             return done(null, false, {
+//               message: "Invalid Credentials, Try Again",
+//             });
+//           }
+//           if (user.password != password) {
+//             return done(null, false, { message: "Incorrect Password" });
+//           }
+//           return done(null, user);
+//         })
+//         .catch((err) => {
+//           return res.redirect("/");
+//         });
+//     }
+//   )
+// );
 
-passport.serializeUser(function (user, done) {
-  done(null, user.id);
-});
+// passport.serializeUser(function (user, done) {
+//   done(null, user.id);
+// });
 
-passport.deserializeUser(function (id, done) {
-  User.findById(id, function (err, user) {
-    done(err, user);
-  });
-});
+// passport.deserializeUser(function (id, done) {
+//   User.findById(id, function (err, user) {
+//     done(err, user);
+//   });
+// });
 
-router.post(
-  "/login",
-  passport.authenticate("local", {
-    failureRedirect: "/login",
-    failureFlash: true,
-  }),
-  (req, res) => {
-    User.findOne({ email: req.body.email })
-      .then((user) => {
-        res.redirect("/" + user._id);
-      })
-      .catch((err) => {
-        req.flash(
-          "error_msg",
-          "Invalid Credentials! If error persists, contact support."
-        );
-        return res.redirect("back");
-      });
-  }
-);
+
 
 
 
