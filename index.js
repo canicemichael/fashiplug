@@ -121,10 +121,10 @@ passport.deserializeUser(function(user, cb) {
 });
 
 
-// =================dash ROUTES===============
+// =================land ROUTES===============
 
 app.get("/", (req, res) => {
-  res.render("index");
+  res.render("land/index");
 });
 
 app.get("/main", (req, res) => {
@@ -132,27 +132,27 @@ app.get("/main", (req, res) => {
 });
 
 app.get("/blog", (req, res) => {
-  res.render("blog");
+  res.render("land/blog");
 });
 
 app.get("/blog-details", (req, res) => {
-  res.render("blog-details");
+  res.render("land/blog-details");
 });
 
 app.get("/check-out", (req, res) => {
-  res.render("check-out");
+  res.render("land/check-out");
 });
 
 app.get("/contact", (req, res) => {
-  res.render("contact");
+  res.render("land/contact");
 });
 
 app.get("/faq", (req, res) => {
-  res.render("faq");
+  res.render("land/faq");
 });
 
 app.get("/product", (req, res) => {
-  res.render("product");
+  res.render("land/product");
 });
 
 // ------------- auth Route -----------------
@@ -253,11 +253,11 @@ app.post("/register", (req, res) => {
 // ===============shop ROUTES===================
 
 app.get("/shop", (req, res) => {
-  res.render("shop");
+  res.render("land/shop");
 });
 
 app.get("/shopping-cart", (req, res) => {
-  res.render("shopping-cart");
+  res.render("land/shopping-cart");
 });
 
 //routes
