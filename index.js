@@ -18,9 +18,14 @@ const authRoute = require("./routes/auth");
 // importing models
 const { User } = require("./models/user");
 const funct = require("./config/funct");
+const mail = require("./config/mail");
 
 // importing functions
-let verification_code = funct.verification_code;
+let verification_code = funct.verification_code,
+  reset_code = funct.reset_code;
+
+// Importing mails
+let reset_mail = mail.reset_mail;
 
 const { authJwt } = require("./helpers/jwt");
 const errorHandler = require("./helpers/error-handler");
@@ -38,7 +43,7 @@ app.use(cors()); //used to connect frontend fetching of api to the backed. Shoul
 app.options("*", cors()); //works hand in hand with cors
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan("tiny")); //this logs the endpoints when they're called from frontend
+//app.use(morgan("tiny")); //this logs the endpoints when they're called from frontend
 // app.use(authJwt());
 app.use(errorHandler);
 
@@ -62,7 +67,6 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-
 
 // flash
 app.use(flash());
@@ -114,17 +118,31 @@ passport.serializeUser(function (user, done) {
 //   });
 // });
 
-passport.deserializeUser(function(user, cb) {
-  process.nextTick(function() {
+passport.deserializeUser(function (user, cb) {
+  process.nextTick(function () {
     return cb(null, user);
   });
 });
 
+// domain reference
+var domain = (req) => {
+  return "https://" + req.get("host");
+};
 
 // =================land ROUTES===============
 
 app.get("/", (req, res) => {
-  res.render("land/index");
+  let userId = req.user;
+  let currentUser;
+
+  User.findById(userId).then(async (user) => {
+    if (user) {
+      console.log(user);
+      currentUser = user;
+    }
+  });
+  // console.log(user.schema.obj);
+  res.render("land/index", { currentUser });
 });
 
 app.get("/main", (req, res) => {
@@ -157,8 +175,15 @@ app.get("/product", (req, res) => {
 
 // ------------- auth Route -----------------
 
-app.get("/login", (req, res) => {
-  res.render("auth/login");
+app.get("/login", async (req, res) => {
+  let userId = req.user;
+  let currentUser;
+  await User.findById(userId).then(async (user) => {
+    if (user) {
+      currentUser = await user.username;
+    }
+  });
+  res.render("auth/login", { currentUser });
 });
 
 app.post(
@@ -167,7 +192,7 @@ app.post(
     failureRedirect: "/login",
     failureFlash: true,
   }),
-  (req, res) => {    
+  (req, res) => {
     User.findOne({ email: req.body.email })
       .then((user) => {
         // res.redirect("/" + user._id);
@@ -183,8 +208,15 @@ app.post(
   }
 );
 
-app.get("/register", (req, res) => {
-  res.render("auth/register");
+app.get("/register", async (req, res) => {
+  let userId = req.user;
+  let currentUser;
+  await User.findById(userId).then(async (user) => {
+    if (user) {
+      currentUser = await user.username;
+    }
+  });
+  res.render("auth/register", { currentUser });
 });
 
 app.post("/register", (req, res) => {
@@ -343,6 +375,45 @@ app.post("/register/:id", (req, res) => {
   }
 });
 
+app.get("/reset", async (req, res) => {
+  let userId = req.user;
+  let currentUser;
+  await User.findById(userId).then(async (user) => {
+    if (user) {
+      currentUser = await user.username;
+    }
+  });
+  res.render("auth/reset", { page: "Reset", currentUser });
+});
+
+app.post("/reset", (req, res) => {
+  User.findOne({ email: req.body.email })
+    .then((user) => {
+      if (user) {
+        var dom = domain(req);
+        user.reset_password.code = reset_code();
+        user.reset_password.status = true;
+        reset_mail(user, dom);
+        user.save();
+        console.log(user.reset_password.code);
+        req.flash("success_msg", "Check your mail for the reset code");
+        return res.redirect("/reset/" + user._id);
+      } else {
+        req.flash("error_msg", "Account does not exist!");
+        return res.redirect("back");
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      req.flash("error_msg", "Account does not exist!");
+      return res.redirect("back");
+    });
+});
+
+app.get("/reset/:id", (req, res) => {
+  let user = req.params.id;
+  res.render("auth/new_password", { user, page: "New Password" });
+});
 
 // ===============shop ROUTES===================
 

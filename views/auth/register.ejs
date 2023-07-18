@@ -25,6 +25,26 @@
           <form action="/register" method="post">
             <%- include('partials/messages') %>
             <div class="group-input">
+              <label for="firstname">First Name *</label>
+              <input
+                type="text"
+                name="first_name"
+                autocomplete="off"
+                class="form-control bg-transparent"
+                required
+              />
+            </div>
+            <div class="group-input">
+              <label for="lastname">Last Name *</label>
+              <input
+                type="text"
+                name="last_name"
+                autocomplete="off"
+                class="form-control bg-transparent"
+                required
+              />
+            </div>
+            <div class="group-input">
               <label for="username">Username or email address *</label>
               <input type="text" id="username" name="email" />
             </div>
