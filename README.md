@@ -1,6 +1,4 @@
 # fashiplug
 An E-commerce website for unisex fashion/wears
 
-E-commerce (electronic commerce) is the activity of electronically buying or selling of products on online services or over the Internet. 
-E-commerce draws on technologies such as mobile commerce, electronic funds transfer, supply chain management, Internet marketing, 
-online transaction processing, electronic data interchange (EDI), inventory management systems, and automated data collection systems
+Fashiplug is an online marketplace, where people come together to make, sell, buy, and collect unique items. We’re also a community pushing for positive change for small businesses, people, and the planet.
