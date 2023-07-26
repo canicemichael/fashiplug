@@ -138,11 +138,11 @@ app.get("/", async (req, res) => {
   await User.findById(userId).then(async (user) => {
     if (user) {
       // console.log("user ", user);
-      currentUser = user;
+      currentUser = user.first_name
     }
   });
-  // console.log("currentUser", currentUser.first_name);
-  res.render("land/index", { currentUser: currentUser.first_name });
+  console.log("currentUser", currentUser);
+  res.render("land/index", { currentUser });
 });
 
 app.get("/women", async (req, res) => {
@@ -283,6 +283,20 @@ app.get("/faq", (req, res) => {
 
 app.get("/product", (req, res) => {
   res.render("land/product");
+});
+
+app.get("/shopping-cart", async (req, res) => {
+  let userId = req.user;
+  let currentUser;
+
+  await User.findById(userId).then(async (user) => {
+    if (user) {
+      // console.log("user ", user);
+      currentUser = user.first_name
+    }
+  });
+  console.log("currentUser", currentUser);
+  res.render("land/shopping-cart", { currentUser });
 });
 
 // ------------- auth Route -----------------
