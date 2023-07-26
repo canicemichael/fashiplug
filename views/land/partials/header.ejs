@@ -46,11 +46,16 @@
                     </div>
                     <div class="phone-service">
                         <i class=" fa fa-phone"></i>
-                        +65 11.188.888
+                        +234 8101 188 888
                     </div>
                 </div>
                 <div class="ht-right">
-                    <a href="./login" class="login-panel"><i class="fa fa-user"></i>Login</a>
+                    <% if (currentUser != undefined ) { %>
+                        <a href="/" class="login-panel"><i class="fa fa-user"></i><%= currentUser %></a>                       
+                        <%} else { %>
+                            <a href="/login" class="login-panel"><i class="fa fa-user"></i>Login</a>
+                        <% } %>
+                        
                     <div class="lan-selector">
                         <select class="language_drop" name="countries" id="countries" style="width:300px;">
                             <option value='yt' data-image="img/flag-1.jpg" data-imagecss="flag yt"
@@ -73,7 +78,7 @@
                 <div class="row">
                     <div class="col-lg-2 col-md-2">
                         <div class="logo">
-                            <a href="./index">
+                            <a href="/">
                                 <img src="img/logo.png" alt="">
                             </a>
                         </div>    
@@ -152,30 +157,30 @@
                         <i class="ti-menu"></i>
                         <span>All departments</span>
                         <ul class="depart-hover">
-                            <li class="active"><a href="#">Women’s Clothing</a></li>
-                            <li><a href="#">Men’s Clothing</a></li>
-                            <li><a href="#">Underwear</a></li>
-                            <li><a href="#">Kid's Clothing</a></li>
-                            <li><a href="#">Brand Fashion</a></li>
-                            <li><a href="#">Accessories/Shoes</a></li>
-                            <li><a href="#">Luxury Brands</a></li>
-                            <li><a href="#">Brand Outdoor Apparel</a></li>
+                            <li class="active"><a href="/women">Women’s Clothing</a></li>
+                            <li><a href="/men">Men’s Clothing</a></li>
+                            <li><a href="/underwear">Underwear</a></li>
+                            <li><a href="/kids">Kid's Clothing</a></li>
+                            <li><a href="/brand-fashion">Brand Fashion</a></li>
+                            <li><a href="/shoes">Accessories/Shoes</a></li>
+                            <li><a href="/luxury">Luxury Brands</a></li>
+                            <li><a href="/brand-outdoor">Brand Outdoor Apparel</a></li>
                         </ul>
                     </div>
                 </div>
                 <nav class="nav-menu mobile-menu">
                     <ul>
-                        <li><a href="./index">Home</a></li>
-                        <li><a href="./shop">Shop</a></li>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/shop">Shop</a></li>
                         <li><a href="#">Collection</a>
                             <ul class="dropdown">
-                                <li><a href="#">Men's</a></li>
-                                <li><a href="#">Women's</a></li>
-                                <li><a href="#">Kid's</a></li>
+                                <li><a href="/men">Men's</a></li>
+                                <li><a href="/women">Women's</a></li>
+                                <li><a href="/kids">Kid's</a></li>
                             </ul>
                         </li>
-                        <li><a href="./blog">Blog</a></li>
-                        <li><a href="./contact">Contact</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/contact">Contact</a></li>
                         <li><a href="#">Pages</a>
                             <ul class="dropdown">
                                 <li><a href="./blog-details">Blog Details</a></li>

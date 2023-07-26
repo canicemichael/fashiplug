@@ -137,12 +137,124 @@ app.get("/", async (req, res) => {
 
   await User.findById(userId).then(async (user) => {
     if (user) {
-      // console.log(user);
+      // console.log("user ", user);
       currentUser = user;
     }
   });
-  // console.log(currentUser.username);
-  res.render("land/index", { currentUser });
+  // console.log("currentUser", currentUser.first_name);
+  res.render("land/index", { currentUser: currentUser.first_name });
+});
+
+app.get("/women", async (req, res) => {
+  let userId = req.user;
+  let currentUser;
+
+  await User.findById(userId).then(async (user) => {
+    if (user) {
+      // console.log("user ", user);
+      currentUser = user;
+    }
+  });
+  // console.log("currentUser", currentUser.first_name);
+  res.render("land/women", { currentUser: currentUser.first_name });
+});
+
+app.get("/men", async (req, res) => {
+  let userId = req.user;
+  let currentUser;
+
+  await User.findById(userId).then(async (user) => {
+    if (user) {
+      // console.log("user ", user);
+      currentUser = user;
+    }
+  });
+  // console.log("currentUser", currentUser.first_name);
+  res.render("land/men", { currentUser: currentUser.first_name });
+});
+
+app.get("/brand-fashion", async (req, res) => {
+  let userId = req.user;
+  let currentUser;
+
+  await User.findById(userId).then(async (user) => {
+    if (user) {
+      // console.log("user ", user);
+      currentUser = user;
+    }
+  });
+  // console.log("currentUser", currentUser.first_name);
+  res.render("land/brand-fashion", { currentUser: currentUser.first_name });
+});
+
+app.get("/brand-outdoor", async (req, res) => {
+  let userId = req.user;
+  let currentUser;
+
+  await User.findById(userId).then(async (user) => {
+    if (user) {
+      // console.log("user ", user);
+      currentUser = user;
+    }
+  });
+  // console.log("currentUser", currentUser.first_name);
+  res.render("land/brand-outdoor", { currentUser: currentUser.first_name });
+});
+
+app.get("/kids", async (req, res) => {
+  let userId = req.user;
+  let currentUser;
+
+  await User.findById(userId).then(async (user) => {
+    if (user) {
+      // console.log("user ", user);
+      currentUser = user;
+    }
+  });
+  // console.log("currentUser", currentUser.first_name);
+  res.render("land/kids", { currentUser: currentUser.first_name });
+});
+
+app.get("/luxury", async (req, res) => {
+  let userId = req.user;
+  let currentUser;
+
+  await User.findById(userId).then(async (user) => {
+    if (user) {
+      // console.log("user ", user);
+      currentUser = user;
+    }
+  });
+  // console.log("currentUser", currentUser.first_name);
+  res.render("land/luxury", { currentUser: currentUser.first_name });
+});
+
+app.get("/shoes", async (req, res) => {
+  let userId = req.user;
+  let currentUser;
+
+  await User.findById(userId).then(async (user) => {
+    if (user) {
+      // console.log("user ", user);
+      currentUser = user;
+    }
+  });
+  // console.log("currentUser", currentUser.first_name);
+  res.render("land/shoes", { currentUser: currentUser.first_name });
+});
+
+app.get("/underwear", async (req, res) => {
+  let userId = req.user;
+  let currentUser;
+
+  await User.findById(userId).then(async (user) => {
+    if (user) {
+      // console.log("user ", user);
+      currentUser = user;
+    }
+  });
+  // console.log("currentUser", currentUser.first_name);
+  res.render("land/underwear", { currentUser: currentUser.first_name });
 });
 
 app.get("/main", (req, res) => {
