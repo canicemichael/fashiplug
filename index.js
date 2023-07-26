@@ -131,17 +131,17 @@ var domain = (req) => {
 
 // =================land ROUTES===============
 
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
   let userId = req.user;
   let currentUser;
 
-  User.findById(userId).then(async (user) => {
+  await User.findById(userId).then(async (user) => {
     if (user) {
-      console.log(user);
+      // console.log(user);
       currentUser = user;
     }
   });
-  // console.log(user.schema.obj);
+  // console.log(currentUser.username);
   res.render("land/index", { currentUser });
 });
 
@@ -393,26 +393,33 @@ app.post("/reset", (req, res) => {
         var dom = domain(req);
         user.reset_password.code = reset_code();
         user.reset_password.status = true;
-        reset_mail(user, dom);
+        // reset_mail(user, dom);
         user.save();
-        console.log(user.reset_password.code);
+        // console.log(user.reset_password.code);
         req.flash("success_msg", "Check your mail for the reset code");
-        return res.redirect("/reset/" + user._id);
+        res.redirect("/reset/" + user._id);
       } else {
         req.flash("error_msg", "Account does not exist!");
-        return res.redirect("back");
+        res.redirect("back");
       }
     })
     .catch((err) => {
-      console.log(err);
+      console.log("err", err);
       req.flash("error_msg", "Account does not exist!");
-      return res.redirect("back");
+      res.redirect("back");
     });
 });
 
-app.get("/reset/:id", (req, res) => {
+app.get("/reset/:id", async (req, res) => {
   let user = req.params.id;
-  res.render("auth/new_password", { user, page: "New Password" });
+  let userId = req.user;
+  let currentUser;
+  await User.findById(userId).then(async (user) => {
+    if (user) {
+      currentUser = await user.username;
+    }
+  });
+  res.render("auth/new_password", { user, page: "New Password", currentUser });
 });
 
 // ===============shop ROUTES===================

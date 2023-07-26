@@ -2,7 +2,10 @@ const mongoose = require("mongoose"),
   passportLocalMongoose = require("passport-local-mongoose");
 
 const userSchema = mongoose.Schema({
-  name: {
+  first_name: {
+    type: String,
+  },
+  last_name: {
     type: String,
   },
   email: {
@@ -41,6 +44,11 @@ const userSchema = mongoose.Schema({
     default: "",
   },
   verification_code: String,
+  reset_password: {
+    status: { type: Boolean, default: false },
+    code: String,
+    old_password: [],
+  },
 });
 
 // inorder to change the _id to id
